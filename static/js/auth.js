@@ -30,7 +30,15 @@ const auth = {
                     password: document.getElementById("l-pass").value,
                 }),
             });
-            const data = await r.json();
+            let data;
+            try {
+                data = await r.json();
+            } catch (e) {
+                if (r.status >= 500) {
+                    throw new Error("Our servers are currently experiencing issues. Please try again in a few seconds.");
+                }
+                throw new Error("An unexpected error occurred. Please try again.");
+            }
             if (!r.ok) throw new Error(data.detail || "Login failed.");
             
             localStorage.setItem("cashos_token", data.token);
@@ -57,7 +65,15 @@ const auth = {
                     password: document.getElementById("s-pass").value,
                 }),
             });
-            const data = await r.json();
+            let data;
+            try {
+                data = await r.json();
+            } catch (e) {
+                if (r.status >= 500) {
+                    throw new Error("Our servers are currently experiencing issues. Please try again in a few seconds.");
+                }
+                throw new Error("An unexpected error occurred. Please check your inputs and try again.");
+            }
             if (!r.ok) throw new Error(data.detail || "Registration failed.");
             
             localStorage.setItem("cashos_token", data.token);
