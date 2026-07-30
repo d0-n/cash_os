@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cash OS</title>
+    <meta name="description" content="Cash OS is a rule-based personal finance system.">
+    <link rel="stylesheet" href="/static/style.css?v=2">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <!-- LANDING VIEW -->
+    <div id="view-landing" class="view">
+        <nav class="landing-nav">
+            <div class="landing-nav__left">
+                <div class="brand">
+                    <span>cash os</span>
+                </div>
+                <div class="landing-nav__links">
+                    <a class="landing-nav__link" onclick="ui.showModal('m-signup')">Features</a>
+                    <a class="landing-nav__link" onclick="ui.showModal('m-signup')">Rule Engine</a>
+                    <a class="landing-nav__link" onclick="ui.showModal('m-signup')">Integrations</a>
+                </div>
+            </div>
+            <button class="btn btn--primary" onclick="ui.showModal('m-signup')">Get Started</button>
+        </nav>
+
+        <section class="landing-hero">
+            <div class="landing-hero__grid">
+                <div class="landing-hero__left">
+                    <h1 class="landing-hero__title">Automated Rules for<br>Modern Personal<br>Finance</h1>
+                    <div class="landing-card">
+                        <img src="/static/orange_card.png" class="landing-card__visual" alt="Card Visual">
+                        <div class="landing-card__body">
+                            <div>
+                                <div class="landing-card__stat">100%</div>
+                                <p class="landing-card__desc">Automatic income splitting across virtual envelopes.</p>
+                            </div>
+                            <button class="btn btn--primary" onclick="ui.showModal('m-signup')">Explore Rules</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="landing-hero__right">
+                    <img src="/static/robotic_claw_hero.png" alt="Hero Interface" style="max-width:100%; border-radius:8px; box-shadow:0 12px 36px rgba(0,0,0,0.1);">
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- DASHBOARD VIEW -->
+    <div id="view-dashboard" class="view" style="display:none;">
+        <div class="app">
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar__top">
+                    <div class="sidebar__header">
+                        <div class="brand">
+                            <span>cash os</span>
+                        </div>
+                        <button class="btn btn--sidebar-toggle" onclick="ui.toggleSidebar()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                        </button>
+                    </div>
+                    <div>
+                        <div class="sidebar__label">Workspace</div>
+                        <nav class="nav">
+                            <a class="nav__link nav__link--active" onclick="ui.switchTab('tab-overview', this)">
+                                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                                <span>Overview</span>
+                            </a>
+                            <a class="nav__link" onclick="ui.switchTab('tab-transactions', this)">
+                                <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line></svg>
+                                <span>Transactions</span>
+                            </a>
+                            <a class="nav__link" onclick="ui.switchTab('tab-rules', this)" style="margin-top: 10px;">
+                                <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                                <span>Rule Engine</span>
+                            </a>
+                            <a class="nav__link" onclick="ui.switchTab('tab-envelopes', this)">
+                                <svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                                <span>Envelopes</span>
+                            </a>
+                        </nav>
+                    </div>
+                </div>
+                <div class="sidebar__footer">
+                    <div class="user">
+                        <div>
+                            <div class="user__name" id="user-name-display">User</div>
+                            <div class="user__sub">cash.os</div>
+                        </div>
+                    </div>
+                    <button class="btn btn--logout" onclick="auth.logout()" title="Logout">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    </button>
+                </div>
+            </aside>
+
+            <main class="main">
+                <header class="header">
+                    <div class="header__title" id="page-title">Executive Overview</div>
+                    <div class="header__actions">
+                        <button class="btn btn--primary" onclick="ui.showModal('m-deposit')">&plus; Deposit</button>
+                        <button class="btn btn--outline" onclick="ui.showModal('m-withdraw')">&minus; Withdraw</button>
+                    </div>
+                </header>
+
+                <div id="tab-overview" class="tab-pane tab-pane--active">
+                    <div class="grid">
+                        <div class="hero" id="hero-row">
+                            <div class="card">
+                                <div class="card__header">
+                                    <div class="card__title">Total Balance</div>
+                                    <div class="card__controls">
+                                        <div class="filter-group">
+                                            <button class="filter-group__btn" id="tf-Weekly" onclick="app.setTimeFilter('Weekly')">Weekly</button>
+                                            <button class="filter-group__btn" id="tf-Monthly" onclick="app.setTimeFilter('Monthly')">Monthly</button>
+                                            <button class="filter-group__btn filter-group__btn--active" id="tf-Yearly" onclick="app.setTimeFilter('Yearly')">Yearly</button>
+                                            <button class="filter-group__btn" id="tf-Range" onclick="app.setTimeFilter('Range')">Range</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat__amount" id="total-balance">0 RWF</div>
+                                    <div class="stat__badge">+0%</div>
+                                    <div class="stat__sub" id="usd-equivalent">($0.00)</div>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="mainChart"></canvas>
+                                </div>
+                            </div>
+
+                            <div class="card calendar">
+                                <div class="calendar__collapsed-strip" onclick="ui.toggleCalendar()">
+                                    <svg class="calendar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                    <div class="calendar__vertical-text">Calendar & Goals</div>
+                                </div>
+                                <div class="calendar__expanded-content">
+                                    <div>
+                                        <div class="calendar__controls">
+                                            <button class="calendar__nav-btn" onclick="ui.toggleCalendar()">&times;</button>
+                                            <div class="calendar__title">Activity</div>
+                                            <div></div>
+                                        </div>
+                                        <div class="calendar__grid" id="mini-calendar"></div>
+                                    </div>
+                                    <div>
+                                        <div class="card__header" style="margin-top:10px;">
+                                            <div class="card__title">Active Goals</div>
+                                            <button class="btn btn--edit-sm" onclick="ui.showModal('m-add-goal')" title="New Goal">&plus;</button>
+                                        </div>
+                                        <div class="goals-list" id="goals-list"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="env-row">
+                            <div class="card">
+                                <div class="card__header">
+                                    <div class="card__title">Envelopes</div>
+                                    <button class="btn btn--outline" onclick="ui.showModal('m-envelope')">&plus; New</button>
+                                </div>
+                                <div class="envelope-list" id="envelopes-list"></div>
+                            </div>
+
+                            <div class="allocation">
+                                <div class="card" style="flex:1;">
+                                    <div class="card__header">
+                                        <div class="card__title">Allocation Engine</div>
+                                        <button class="btn btn--outline" onclick="ui.showModal('m-rule')">&plus; Rule</button>
+                                    </div>
+                                    <div class="stacked-bar" id="alloc-bar"></div>
+                                    <div class="allocation-list" id="alloc-list"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-transactions" class="tab-pane">
+                    <div class="tx-card">
+                        <div class="table-toolbar">
+                            <div class="table-search-group">
+                                <div class="search-box">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                    <input type="text" id="tx-search" placeholder="Search transactions..." onkeyup="app.fetchTransactions()">
+                                </div>
+                                <select class="table-filter" id="tx-filter" onchange="app.fetchTransactions()">
+                                    <option value="all">All Labels</option>
+                                    <option value="salary">Salary</option>
+                                    <option value="gig">Gig</option>
+                                    <option value="withdrawal">Withdrawal</option>
+                                    <option value="gift">Gift</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="tx-wrapper">
+                            <table class="tx-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Date</th>
+                                        <th>Note / Label</th>
+                                        <th>Category</th>
+                                        <th>Amount</th>
+                                        <th>USD Eqv.</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tx-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-rules" class="tab-pane">
+                    <div class="tx-card">
+                        <div class="card__header" style="border-bottom: 1px solid #e8e8e4; padding: 16px 20px;">
+                            <div class="card__title">Automation Rules</div>
+                            <button class="btn btn--primary" onclick="ui.showModal('m-rule')">&plus; New Rule</button>
+                        </div>
+                        <div class="tx-wrapper">
+                            <table class="tx-table">
+                                <thead>
+                                    <tr>
+                                        <th>Label</th>
+                                        <th>Envelope</th>
+                                        <th>Type</th>
+                                        <th>Amount / %</th>
+                                        <th style="text-align:right;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rules-list-tab">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-envelopes" class="tab-pane">
+                    <div class="tx-card">
+                        <div class="card__header" style="border-bottom: 1px solid #e8e8e4; padding: 16px 20px;">
+                            <div class="card__title">Your Envelopes</div>
+                            <button class="btn btn--primary" onclick="ui.showModal('m-envelope')">&plus; New Envelope</button>
+                        </div>
+                        <div class="tx-wrapper">
+                            <table class="tx-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Balance</th>
+                                        <th>Goal</th>
+                                        <th>Deadline</th>
+                                        <th style="text-align:right;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="envelopes-list-tab">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+    <div class="modal-overlay" id="m-login">
+        <div class="modal">
+            <button class="btn btn--close" onclick="ui.hideModals()">&times;</button>
+            <div class="modal__header"><h2>Sign In</h2></div>
+            <p class="modal__desc">Access your Cash OS workspace.</p>
+            <form onsubmit="auth.login(event)">
+                <div class="modal__field">
+                    <label>Username</label>
+                    <input type="text" id="l-user" required autocomplete="username">
+                </div>
+                <div class="modal__field">
+                    <label>Password</label>
+                    <input type="password" id="l-pass" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn--primary" style="width:100%">Sign In</button>
+                <div class="modal__err" id="l-err"></div>
+            </form>
+            <div class="modal__toggle">No account? <a onclick="ui.showModal('m-signup')">Sign Up</a></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="m-signup">
+        <div class="modal">
+            <button class="btn btn--close" onclick="ui.hideModals()">&times;</button>
+            <div class="modal__header"><h2>Sign Up</h2></div>
+            <p class="modal__desc">Create your account with default envelopes.</p>
+            <form onsubmit="auth.signup(event)">
+                <div class="modal__field">
+                    <label>Username</label>
+                    <input type="text" id="s-user" required minlength="3" autocomplete="username">
+                </div>
+                <div class="modal__field">
+                    <label>Password</label>
+                    <input type="password" id="s-pass" required minlength="6" autocomplete="new-password">
+                </div>
+                <button type="submit" class="btn btn--primary" style="width:100%">Create Account</button>
+                <div class="modal__err" id="s-err"></div>
+            </form>
+            <div class="modal__toggle">Already have an account? <a onclick="ui.showModal('m-login')">Sign In</a></div>
+        </div>
+    </div>
+
+    <!-- Missing Modals -->
+    <div class="modal-overlay" id="m-withdraw">
+        <div class="modal">
+            <button class="btn btn--close" onclick="ui.hideModals()">&times;</button>
+            <div class="modal__header"><h3>Withdraw Funds</h3></div>
+            <form onsubmit="app.handleWithdraw(event)">
+                <div class="modal__field">
+                    <label>From Envelope</label>
+                    <select id="withdraw-envelope" required onchange="app.updateWithdrawLimits()">
+                        <option value="">Select Envelope</option>
+                    </select>
+                </div>
+                <div class="modal__field">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:4px;">
+                        <label style="margin-bottom:0;">Amount (RWF)</label>
+                        <div style="font-size:11px; color:#64748b;" id="w-balance-display">Max: 0</div>
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <input type="number" id="withdraw-amount" style="flex:1;" required min="1">
+                        <button type="button" class="btn btn--outline" onclick="app.setWithdrawMax()">Max</button>
+                    </div>
+                </div>
+                <div class="modal__field">
+                    <label>Note</label>
+                    <input type="text" id="withdraw-note">
+                </div>
+                <button type="submit" class="btn btn--primary" style="width:100%">Process Withdrawal</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="m-envelope">
+        <div class="modal">
+            <button class="btn btn--close" onclick="ui.hideModals()">&times;</button>
+            <div class="modal__header"><h3>Create Envelope</h3></div>
+            <form onsubmit="app.handleCreateEnvelope(event)">
+                <div class="modal__field">
+                    <label>Name</label>
+                    <input type="text" id="env-name" required>
+                </div>
+                <div class="modal__field">
+                    <label>Target Goal (Optional)</label>
+                    <input type="number" id="env-goal">
+                </div>
+                <div class="modal__field">
+                    <label>Goal Date (Optional)</label>
+                    <input type="date" id="env-date">
+                </div>
+                <div class="modal__field">
+                    <label>Color</label>
+                    <input type="color" id="env-color" value="#000000" style="height:32px;">
+                </div>
+                <button type="submit" class="btn btn--primary" style="width:100%">Create Envelope</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="m-rule">
+        <div class="modal">
+            <button class="btn btn--close" onclick="ui.hideModals()">&times;</button>
+            <div class="modal__header"><h3>Create Rule</h3></div>
+            <form onsubmit="app.handleCreateRule(event)">
+                <div class="modal__field">
+                    <label>Label Match (e.g. 'salary')</label>
+                    <select id="rule-label" required>
+                        <option value="salary">Salary</option>
+                        <option value="gig">Gig</option>
+                        <option value="gift">Gift</option>
+                        <option value="other">Other</option>
+                        <option value="any">Any</option>
+                    </select>
+                </div>
+                <div class="modal__field">
+                    <label>Target Envelope</label>
+                    <select id="rule-envelope" required>
+                        <!-- Populated by JS -->
+                        <option value="">Select Envelope</option>
+                    </select>
+                </div>
+                <div class="modal__field">
+                    <label>Rule Type</label>
+                    <select id="rule-type" required>
+                        <option value="percentage">Percentage (%)</option>
+                        <option value="fixed">Fixed Amount (RWF)</option>
+                    </select>
+                </div>
+                <div class="modal__field">
+                    <label>Value</label>
+                    <input type="number" id="rule-value" required min="1">
+                </div>
+                <button type="submit" class="btn btn--primary" style="width:100%">Save Rule</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="m-add-goal">
+        <div class="modal">
+            <button class="btn btn--close" onclick="ui.hideModals()">&times;</button>
+            <div class="modal__header"><h3>Add Goal</h3></div>
+            <form onsubmit="app.handleCreateGoal(event)">
+                <div class="modal__field">
+                    <label>Goal Title</label>
+                    <input type="text" id="goal-title-input" required>
+                </div>
+                <div class="modal__field">
+                    <label>Target Amount</label>
+                    <input type="number" id="goal-amount-input" required min="1">
+                </div>
+                <button type="submit" class="btn btn--primary" style="width:100%">Save Goal</button>
+            </form>
+        </div>
+    </div>
+    <div class="modal-overlay" id="m-deposit">
+        <div class="modal">
+            <button class="btn btn--close" onclick="ui.hideModals()">&times;</button>
+            <div class="modal__header"><h3>Deposit Funds</h3></div>
+            <form onsubmit="app.handleDeposit(event)">
+                <div class="modal__field">
+                    <label>Amount (RWF)</label>
+                    <input type="number" id="dep-amount" required min="1">
+                </div>
+                <div class="modal__field">
+                    <label>Income Label</label>
+                    <select id="dep-label" required>
+                        <option value="salary">Salary</option>
+                        <option value="gig">Gig</option>
+                        <option value="gift">Gift</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="modal__field">
+                    <label>Note</label>
+                    <input type="text" id="dep-note">
+                </div>
+                <button type="submit" class="btn btn--primary" style="width:100%">Process Deposit</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Retroactive Modal -->
+    <div class="modal-overlay" id="m-retro">
+        <div class="modal">
+            <button class="btn btn--close" onclick="ui.hideModals()">&times;</button>
+            <div class="modal__header"><h3>Apply Rule Retroactively?</h3></div>
+            <p id="retro-msg" style="margin-bottom: 24px; color: #475569; font-size: 14px; line-height: 1.5;"></p>
+            <div style="display: flex; gap: 12px;">
+                <button type="button" class="btn btn--outline" id="retro-no" style="flex: 1;">No, Just Save</button>
+                <button type="button" class="btn btn--primary" id="retro-yes" style="flex: 1;">Yes, Apply</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Date Range Modal -->
+    <div class="modal-overlay" id="m-range">
+        <div class="modal">
+            <button class="btn btn--close" onclick="ui.hideModals()">&times;</button>
+            <div class="modal__header"><h3>Select Date Range</h3></div>
+            <form onsubmit="app.applyDateRange(event)">
+                <div class="modal__field">
+                    <label>Start Date</label>
+                    <input type="date" id="range-start" required>
+                </div>
+                <div class="modal__field">
+                    <label>End Date</label>
+                    <input type="date" id="range-end" required>
+                </div>
+                <button type="submit" class="btn btn--primary" style="width:100%">Apply Range</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/static/js/api.js?v=cb4"></script>
+    <script src="/static/js/auth.js?v=cb4"></script>
+    <script src="/static/js/ui.js?v=cb4"></script>
+    <script src="/static/js/app.js?v=cb4"></script>
+</body>
+</html>

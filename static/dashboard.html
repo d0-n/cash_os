@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cash OS &middot; Executive Dashboard</title>
+    <meta name="description" content="Cash OS Executive Dashboard. Rule-based personal finance management.">
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <div class="app-container">
+
+        <!-- Foldable Lean Sidebar -->
+        <aside class="sidebar" id="app-sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-header-row">
+                    <a href="/" class="sidebar-brand">
+                        <img src="/static/logo.png" alt="Cash OS Logo">
+                        <span>cash os</span>
+                    </a>
+                    <button class="btn-sidebar-toggle" id="sidebar-toggle-btn" onclick="toggleSidebar()" title="Toggle Sidebar (Expand/Collapse)">
+                        &laquo;
+                    </button>
+                </div>
+
+                <div>
+                    <div class="sidebar-menu-label">Main Menu</div>
+                    <nav class="sidebar-nav">
+                        <div class="nav-item-link active" id="nav-overview" onclick="switchTab('overview')" title="Overview">
+                            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                            <span class="nav-text-lbl">Overview</span>
+                        </div>
+                        <div class="nav-item-link" id="nav-transactions" onclick="switchTab('transactions')" title="Transactions Log">
+                            <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                            <span class="nav-text-lbl">Transactions Log</span>
+                        </div>
+                        <div class="nav-item-link" onclick="openModal('m-rule')" title="Rule Engine">
+                            <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                            <span class="nav-text-lbl">Rule Engine</span>
+                        </div>
+                        <div class="nav-item-link" onclick="openModal('m-envelope')" title="Envelopes">
+                            <svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                            <span class="nav-text-lbl">Envelopes</span>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+
+            <div class="sidebar-user-bottom">
+                <div class="user-meta">
+                    <div class="user-info-block">
+                        <div class="user-text-name" id="user-name-display">User</div>
+                        <div class="user-text-sub">cash.os</div>
+                    </div>
+                </div>
+                <button class="btn-logout-square" title="Sign Out" onclick="logout()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Workspace Area -->
+        <main class="main-content">
+
+            <!-- TAB 1: OVERVIEW DASHBOARD -->
+            <div class="tab-pane active" id="tab-overview">
+
+                <!-- Top Header -->
+                <header class="top-header">
+                    <h1 class="header-title">Overview</h1>
+
+                    <div class="header-actions">
+                        <div class="search-box-lean">
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            <input type="text" id="dash-search" placeholder="Search envelopes & goals..." oninput="filterDashboard()">
+                        </div>
+
+                        <button class="btn-outline-action" style="border-color:#ef4444; color:#ef4444;" onclick="openWithdrawModal()">&minus; Withdraw</button>
+                        <button class="btn-black-action" onclick="openModal('m-deposit')">+ Deposit Money</button>
+                    </div>
+                </header>
+
+                <!-- Dashboard Grid -->
+                <div class="dashboard-grid">
+
+                    <!-- Top Hero Row: Market-Trend Savings vs Multi-Goal Chart + Calendar Drawer -->
+                    <div class="hero-row" id="hero-row-grid">
+
+                        <!-- Left Multi-Goal Chart Panel -->
+                        <div class="card-panel-sharp" id="panel-chart">
+                            <div class="panel-header">
+                                <span class="panel-title-sharp">Savings vs Goals</span>
+
+                                <div class="panel-controls">
+                                    <div class="time-filters-lean">
+                                        <button class="filter-btn-lean" id="tf-Weekly" onclick="setTimeFilter('Weekly')">Weekly</button>
+                                        <button class="filter-btn-lean" id="tf-Monthly" onclick="setTimeFilter('Monthly')">Monthly</button>
+                                        <button class="filter-btn-lean active" id="tf-Yearly" onclick="setTimeFilter('Yearly')">Yearly</button>
+                                        <button class="filter-btn-lean" id="tf-Range" onclick="openRangePicker()">Range</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="main-stat-display">
+                                <span class="big-amount-sharp" id="balance-rwf">0 RWF</span>
+                                <div class="growth-badge-sharp" id="growth-badge">
+                                    <span id="growth-text">▲ 0.0%</span>
+                                </div>
+                                <span class="stat-subtext-sharp" id="balance-usd">≈ $0.00 USD</span>
+                            </div>
+
+                            <div class="chart-wrapper-lean">
+                                <canvas id="savingsGoalChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Right Collapsible Tiling Calendar & Goals Panel -->
+                        <div class="card-panel-sharp calendar-panel-collapsible" id="panel-calendar">
+
+                            <!-- Collapsed State Vertical Button Strip -->
+                            <div class="cal-collapsed-strip" onclick="toggleCalendar()" title="Expand Calendar & Goals">
+                                <svg class="cal-strip-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                <div class="cal-vertical-text">Calendar & Goals</div>
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                            </div>
+
+                            <!-- Expanded Tiling Calendar & Goals Content -->
+                            <div class="calendar-expanded-content">
+                                <div class="panel-header">
+                                    <span class="panel-title-sharp">Calendar & Events</span>
+                                    <button class="btn-resize-icon" title="Collapse Calendar" onclick="toggleCalendar()">&times;</button>
+                                </div>
+
+                                <div>
+                                    <div class="calendar-controls">
+                                        <button class="cal-nav-btn-lean" onclick="prevMonth()">&lsaquo;</button>
+                                        <span class="cal-month-title" id="cal-month-name">January, 2026</span>
+                                        <button class="cal-nav-btn-lean" onclick="nextMonth()">&rsaquo;</button>
+                                    </div>
+
+                                    <div class="calendar-grid">
+                                        <div class="cal-day-header">M</div>
+                                        <div class="cal-day-header">T</div>
+                                        <div class="cal-day-header">W</div>
+                                        <div class="cal-day-header">T</div>
+                                        <div class="cal-day-header">F</div>
+                                        <div class="cal-day-header">S</div>
+                                        <div class="cal-day-header">S</div>
+                                    </div>
+                                    <div class="calendar-grid" id="calendar-days-container">
+                                        <!-- Calendar days -->
+                                    </div>
+                                </div>
+
+                                <!-- Multi-Goals Section -->
+                                <div style="margin-top: 8px;">
+                                    <div class="panel-header" style="margin-bottom: 2px;">
+                                        <span class="panel-title-sharp" style="font-size: 9px;">Big Financial Goals</span>
+                                        <button class="btn-black-action" style="padding: 2px 6px; font-size: 9px;" onclick="openCreateGoalModal()">+ Goal</button>
+                                    </div>
+
+                                    <div class="goals-list-container" id="goals-list-container">
+                                        <!-- Multi-goals populated via JS -->
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Bottom Row: Scalable Envelopes Matrix + Multi-Segment Allocation Bar -->
+                    <div class="bottom-row-spacious">
+
+                        <!-- Card 1: High-Density Envelope Data Row Matrix (Scales for 50+ envelopes) -->
+                        <div class="card-panel-sharp" id="panel-envelopes">
+                            <div class="panel-header">
+                                <span class="panel-title-sharp">Envelopes & Auto-Rules</span>
+                                <div class="panel-controls">
+                                    <button class="btn-outline-action" style="padding: 2px 8px; font-size: 10px; margin-right: 4px;" onclick="openModal('m-rule')">+ Rule</button>
+                                    <button class="btn-black-action" style="padding: 2px 8px; font-size: 10px;" onclick="openModal('m-envelope')">+ Envelope</button>
+                                </div>
+                            </div>
+
+                            <div class="env-dense-container" id="envelopes-dense-list">
+                                <!-- Envelope rows dynamically populated -->
+                            </div>
+                            <div class="rules-dense-container" id="rules-dense-list">
+                                <!-- Active allocation rules populated via JS -->
+                            </div>
+                        </div>
+
+                        <!-- Card 2: Stacked Multi-Segment Allocation Breakdown Bar & Distribution Table -->
+                        <div class="card-panel-sharp allocation-card-clean" id="panel-donut">
+                            <div class="panel-header">
+                                <span class="panel-title-sharp">Allocation Breakdown & Distribution</span>
+                                <span style="font-size: 10px; color: #777770;" id="alloc-total-display">0 RWF Total</span>
+                            </div>
+
+                            <!-- Stacked Multi-Segment Bar -->
+                            <div class="stacked-bar-container" id="stacked-alloc-bar">
+                                <!-- Segments injected -->
+                            </div>
+
+                            <div class="alloc-list-scroll" id="alloc-list-scroll">
+                                <!-- Distribution rows -->
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- TAB 2: TRANSACTIONS & LOGS TAB -->
+            <div class="tab-pane" id="tab-transactions">
+                <header class="top-header">
+                    <h1 class="header-title">Transactions & Audit Log</h1>
+
+                    <div class="header-actions">
+                        <button class="btn-outline-action" onclick="exportCSV()">Export CSV</button>
+                        <button class="btn-outline-action" onclick="exportJSON()">Export JSON</button>
+                        <button class="btn-outline-action" style="border-color:#ef4444; color:#ef4444;" onclick="openWithdrawModal()">&minus; Withdraw</button>
+                        <button class="btn-black-action" onclick="openModal('m-deposit')">+ New Deposit</button>
+                    </div>
+                </header>
+
+                <div class="tx-table-card">
+                    <div class="table-toolbar">
+                        <div class="table-search-group">
+                            <div class="search-box-lean" style="width: 240px;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                <input type="text" id="tx-log-search" placeholder="Search transactions..." oninput="renderFullTransactionsTable()">
+                            </div>
+
+                            <select class="table-filter-select" id="tx-label-filter" onchange="renderFullTransactionsTable()">
+                                <option value="all">All Categories</option>
+                                <option value="salary">Salary</option>
+                                <option value="gig">Gig</option>
+                                <option value="gift">Gift</option>
+                                <option value="withdrawal">Withdrawals</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div style="font-size: 11px; color: #666660; font-weight: 600;" id="tx-count-summary">
+                            Showing 0 entries
+                        </div>
+                    </div>
+
+                    <div class="tx-table-wrapper">
+                        <table class="tx-data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Date & Time</th>
+                                    <th>Source / Note</th>
+                                    <th>Category</th>
+                                    <th>Amount (RWF)</th>
+                                    <th>USD Equivalent</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tx-table-body">
+                                <!-- Data populated via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- Deposit Money Modal -->
+    <div class="modal-overlay" id="m-deposit">
+        <div class="dark-modal">
+            <div class="modal-header">
+                <h3>Deposit Money</h3>
+                <button class="close-btn" onclick="closeModal('m-deposit')">&times;</button>
+            </div>
+            <form onsubmit="handleDeposit(event)">
+                <div class="dark-field">
+                    <label>Amount (RWF)</label>
+                    <input type="number" id="dep-amount" required min="1" placeholder="50000">
+                </div>
+                <div class="dark-field">
+                    <label>Income Label</label>
+                    <select id="dep-label">
+                        <option value="salary">Salary</option>
+                        <option value="gig">Gig</option>
+                        <option value="gift">Gift</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="dark-field">
+                    <label>Note / Source</label>
+                    <input type="text" id="dep-note" placeholder="Optional e.g. July Salary">
+                </div>
+                <button type="submit" class="submit-btn-primary">Execute Deposit & Rules</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Withdraw Money Modal -->
+    <div class="modal-overlay" id="m-withdraw">
+        <div class="dark-modal">
+            <div class="modal-header">
+                <h3>Withdraw / Spend Money</h3>
+                <button class="close-btn" onclick="closeModal('m-withdraw')">&times;</button>
+            </div>
+            <form onsubmit="handleWithdraw(event)">
+                <div class="dark-field">
+                    <label>Withdraw From Envelope</label>
+                    <select id="withdraw-envelope-select" required></select>
+                </div>
+                <div class="dark-field">
+                    <label>Amount (RWF)</label>
+                    <input type="number" id="withdraw-amount" required min="1" placeholder="10000">
+                </div>
+                <div class="dark-field">
+                    <label>Reason / Note</label>
+                    <input type="text" id="withdraw-note" placeholder="e.g. Bought groceries, Utility bill">
+                </div>
+                <button type="submit" class="submit-btn-primary" style="background:#ef4444;">Execute Withdrawal</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Envelope Modal -->
+    <div class="modal-overlay" id="m-envelope">
+        <div class="dark-modal">
+            <div class="modal-header">
+                <h3>Create Envelope</h3>
+                <button class="close-btn" onclick="closeModal('m-envelope')">&times;</button>
+            </div>
+            <form onsubmit="handleCreateEnvelope(event)">
+                <div class="dark-field">
+                    <label>Envelope Name</label>
+                    <input type="text" id="env-name" required placeholder="e.g. Rent, Emergency">
+                </div>
+                <div class="dark-field">
+                    <label>Goal Target (RWF)</label>
+                    <input type="number" id="env-goal" placeholder="Optional target amount">
+                </div>
+                <div class="dark-field">
+                    <label>Goal Target Date</label>
+                    <input type="date" id="env-date">
+                </div>
+                <div class="dark-field">
+                    <label>Accent Color</label>
+                    <input type="color" id="env-color" value="#000000">
+                </div>
+                <button type="submit" class="submit-btn-primary">Save Envelope</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Rule Modal -->
+    <div class="modal-overlay" id="m-rule">
+        <div class="dark-modal">
+            <div class="modal-header">
+                <h3>Add Allocation Rule</h3>
+                <button class="close-btn" onclick="closeModal('m-rule')">&times;</button>
+            </div>
+            <form onsubmit="handleCreateRule(event)">
+                <div class="dark-field">
+                    <label>When Income Label Is</label>
+                    <select id="rule-label">
+                        <option value="salary">Salary</option>
+                        <option value="gig">Gig</option>
+                        <option value="gift">Gift</option>
+                        <option value="other">Other</option>
+                        <option value="any">Any</option>
+                    </select>
+                </div>
+                <div class="dark-field">
+                    <label>Send To Envelope</label>
+                    <select id="rule-envelope"></select>
+                </div>
+                <div class="dark-field">
+                    <label>Rule Type</label>
+                    <select id="rule-type">
+                        <option value="percentage">Percentage (%)</option>
+                        <option value="fixed">Fixed Amount (RWF)</option>
+                    </select>
+                </div>
+                <div class="dark-field">
+                    <label>Value</label>
+                    <input type="number" id="rule-value" required min="1" placeholder="20">
+                </div>
+                <button type="submit" class="submit-btn-primary">Save Rule</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Big Goal Modal -->
+    <div class="modal-overlay" id="m-add-goal">
+        <div class="dark-modal">
+            <div class="modal-header">
+                <h3 id="modal-goal-heading">Create Big Financial Goal</h3>
+                <button class="close-btn" onclick="closeModal('m-add-goal')">&times;</button>
+            </div>
+            <form onsubmit="handleCreateGoal(event)">
+                <div class="dark-field">
+                    <label>Goal Title</label>
+                    <input type="text" id="goal-title-input" required placeholder="e.g. New Laptop, House Fund">
+                </div>
+                <div class="dark-field">
+                    <label>Target Amount (RWF)</label>
+                    <input type="number" id="goal-amount-input" required min="1" placeholder="1500000">
+                </div>
+                <div class="dark-field">
+                    <label>Target Date</label>
+                    <input type="date" id="goal-date-input">
+                </div>
+                <button type="submit" class="submit-btn-primary">Save Goal</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Date Range Picker Modal -->
+    <div class="modal-overlay" id="m-range-picker">
+        <div class="dark-modal">
+            <div class="modal-header">
+                <h3>Select Custom Date Range</h3>
+                <button class="close-btn" onclick="closeModal('m-range-picker')">&times;</button>
+            </div>
+            <form onsubmit="applyCustomDateRange(event)">
+                <div class="dark-field">
+                    <label>Start Date</label>
+                    <input type="date" id="range-start-date" required>
+                </div>
+                <div class="dark-field">
+                    <label>End Date</label>
+                    <input type="date" id="range-end-date" required>
+                </div>
+                <button type="submit" class="submit-btn-primary">Apply Custom Range</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Core App Dashboard Logic JS -->
+    <script>
+        var token = localStorage.getItem("cashos_token");
+        var username = localStorage.getItem("cashos_user");
+        if (!token) window.location.href = "/";
+
+        document.getElementById("user-name-display").textContent = username || "User";
+
+        var state = {
+            envelopes: [],
+            rules: [],
+            transactions: [],
+            summary: {},
+            rateUsd: null,
+            goals: []
+        };
+
+        var chartInstance = null;
+        var activeTimeFilter = "Yearly";
+
+        function authHeaders() {
+            return {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token
+            };
+        }
+
+        function logout() {
+            localStorage.removeItem("cashos_token");
+            localStorage.removeItem("cashos_user");
+            window.location.href = "/";
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.add("open");
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove("open");
+        }
+
+        function openWithdrawModal() {
+            var sel = document.getElementById("withdraw-envelope-select");
+            sel.innerHTML = "";
+            state.envelopes.forEach(function(env) {
+                var opt = document.createElement("option");
+                opt.value = env.id;
+                opt.textContent = env.name + " (" + Number(env.balance || 0).toLocaleString() + " RWF)";
+                sel.appendChild(opt);
+            });
+            openModal("m-withdraw");
+        }
+
+        function toggleSidebar() {
+            var sidebar = document.getElementById("app-sidebar");
+            var btn = document.getElementById("sidebar-toggle-btn");
+            sidebar.classList.toggle("collapsed");
+            btn.innerHTML = sidebar.classList.contains("collapsed") ? "&raquo;" : "&laquo;";
+            setTimeout(function() {
+                if (chartInstance) chartInstance.resize();
+            }, 300);
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll(".nav-item-link").forEach(el => el.classList.remove("active"));
+            document.querySelectorAll(".tab-pane").forEach(el => el.classList.remove("active"));
+
+            if (tab === 'overview') {
+                document.getElementById("nav-overview").classList.add("active");
+                document.getElementById("tab-overview").classList.add("active");
+                setTimeout(function() {
+                    if (chartInstance) chartInstance.resize();
+                }, 100);
+            } else if (tab === 'transactions') {
+                document.getElementById("nav-transactions").classList.add("active");
+                document.getElementById("tab-transactions").classList.add("active");
+                renderFullTransactionsTable();
+            }
+        }
+
+        function toggleCalendar() {
+            var row = document.getElementById("hero-row-grid");
+            row.classList.toggle("calendar-expanded");
+            setTimeout(function() {
+                if (chartInstance) chartInstance.resize();
+            }, 350);
+        }
+
+        async function initDashboard() {
+            await Promise.all([
+                fetchSummary(),
+                fetchEnvelopes(),
+                fetchRules(),
+                fetchTransactions(),
+                fetchGoals()
+            ]);
+            renderCalendar();
+            renderSavingsGoalChart();
+        }
+
+        async function fetchSummary() {
+            try {
+                var r = await fetch("/api/summary", { headers: authHeaders() });
+                if (r.status === 401) return logout();
+                var data = await r.json();
+                state.summary = data;
+                state.rateUsd = data.usd_rate;
+
+                var rwf = data.total_balance || 0;
+                document.getElementById("balance-rwf").textContent = rwf.toLocaleString() + " RWF";
+
+                if (data.usd_rate) {
+                    var usd = (rwf * data.usd_rate).toFixed(2);
+                    document.getElementById("balance-usd").textContent = "≈ $" + usd + " USD";
+                }
+            } catch (err) {
+                console.error("Fetch summary error:", err);
+            }
+        }
+
+        async function fetchEnvelopes() {
+            try {
+                var r = await fetch("/api/envelopes", { headers: authHeaders() });
+                state.envelopes = await r.json();
+                populateRuleEnvelopeSelect();
+                renderEnvelopesDenseList();
+                renderAllocationStackedBar();
+            } catch (err) {
+                console.error("Fetch envelopes error:", err);
+            }
+        }
+
+        function renderEnvelopesDenseList() {
+            var container = document.getElementById("envelopes-dense-list");
+            container.innerHTML = "";
+
+            if (!state.envelopes || state.envelopes.length === 0) {
+                container.innerHTML = '<div style="font-size:11px; color:#888880; padding:10px;">No envelopes created. Click + Envelope to create one.</div>';
+                return;
+            }
+
+            var envColors = ["#000000", "#555550", "#888880", "#aaaaaa", "#cccccc", "#444440", "#666660"];
+
+            state.envelopes.forEach(function(env, idx) {
+                var bal = Number(env.balance || 0);
+                var target = env.goal ? Number(env.goal) : 100000;
+                var pct = Math.min(100, Math.round((bal / target) * 100));
+                var color = env.color || envColors[idx % envColors.length];
+
+                var html = `
+                    <div class="env-row-item" onclick="highlightEnvelopeOnChart('${env.name}')">
+                        <div class="env-row-left">
+                            <span class="env-color-pill" style="background:${color};"></span>
+                            <span class="env-row-name">${env.name}</span>
+                        </div>
+                        <div class="env-row-center">
+                            <div class="env-row-bar-track">
+                                <div class="env-row-bar-fill" style="width: ${pct}%; background:${color};"></div>
+                            </div>
+                        </div>
+                        <div class="env-row-right">
+                            <div class="env-row-bal">${bal.toLocaleString()} RWF</div>
+                            <div class="env-row-sub">${pct}% of ${target.toLocaleString()}</div>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML("beforeend", html);
+            });
+        }
+
+        function renderAllocationStackedBar() {
+            var barContainer = document.getElementById("stacked-alloc-bar");
+            var listContainer = document.getElementById("alloc-list-scroll");
+            barContainer.innerHTML = "";
+            listContainer.innerHTML = "";
+
+            var totalVal = state.envelopes.reduce((sum, e) => sum + Number(e.balance || 0), 0);
+            document.getElementById("alloc-total-display").textContent = totalVal.toLocaleString() + " RWF Total";
+
+            if (totalVal === 0 || !state.envelopes.length) {
+                barContainer.innerHTML = '<div style="font-size:9px; color:#888880; padding:2px 6px;">No allocations yet</div>';
+                listContainer.innerHTML = '<div style="font-size:10px; color:#888880; padding:4px;">Allocations will appear here after deposits.</div>';
+                return;
+            }
+
+            var envColors = ["#000000", "#444440", "#777770", "#aaaaaa", "#999990", "#666660", "#bbbbbb"];
+
+            state.envelopes.forEach(function(env, idx) {
+                var bal = Number(env.balance || 0);
+                var pct = totalVal > 0 ? (bal / totalVal) * 100 : 0;
+                var pctRounded = Math.round(pct);
+                var color = env.color || envColors[idx % envColors.length];
+
+                if (pct > 0) {
+                    var seg = document.createElement("div");
+                    seg.className = "stacked-bar-segment";
+                    seg.style.width = pct + "%";
+                    seg.style.background = color;
+                    seg.title = env.name + ": " + bal.toLocaleString() + " RWF (" + pctRounded + "%)";
+                    seg.onclick = function() { highlightEnvelopeOnChart(env.name); };
+                    barContainer.appendChild(seg);
+                }
+
+                var rowHtml = `
+                    <div class="alloc-list-row" onclick="highlightEnvelopeOnChart('${env.name}')">
+                        <div class="alloc-row-left">
+                            <span style="width:8px; height:8px; border-radius:2px; background:${color};"></span>
+                            <span style="font-weight:700;">${env.name}</span>
+                        </div>
+                        <div style="text-align:right;">
+                            <span style="font-weight:800; margin-right:6px;">${bal.toLocaleString()} RWF</span>
+                            <span style="color:#666660; font-size:9px;">(${pctRounded}%)</span>
+                        </div>
+                    </div>
+                `;
+                listContainer.insertAdjacentHTML("beforeend", rowHtml);
+            });
+        }
+
+        async function fetchRules() {
+            try {
+                var r = await fetch("/api/rules", { headers: authHeaders() });
+                state.rules = await r.json();
+                renderRulesList();
+            } catch (err) {
+                console.error("Fetch rules error:", err);
+            }
+        }
+
+        function renderRulesList() {
+            var container = document.getElementById("rules-dense-list");
+            if (!container) return;
+            container.innerHTML = "";
+
+            if (!state.rules || state.rules.length === 0) {
+                container.innerHTML = '<div style="font-size:9px; color:#888880; padding:4px;">No auto-allocation rules saved. Click + Rule to add one.</div>';
+                return;
+            }
+
+            state.rules.forEach(function(r) {
+                var valStr = r.type === "percentage" ? (r.value + "%") : (Number(r.value).toLocaleString() + " RWF");
+                var html = `
+                    <div class="rule-mini-item">
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <span class="rule-chip-label">${r.label}</span>
+                            <span style="font-weight:600; font-size:10px;">&rarr; ${r.envelope_name}</span>
+                            <span style="color:#666660; font-size:9px;">(${valStr})</span>
+                        </div>
+                        <button class="btn-icon-danger" title="Delete Rule" onclick="deleteRule(${r.id})">&times;</button>
+                    </div>
+                `;
+                container.insertAdjacentHTML("beforeend", html);
+            });
+        }
+
+        async function deleteRule(id) {
+            if (!confirm("Are you sure you want to delete this auto-allocation rule?")) return;
+            try {
+                var r = await fetch("/api/rules/" + id, {
+                    method: "DELETE",
+                    headers: authHeaders()
+                });
+                if (!r.ok) throw new Error("Failed to delete rule.");
+                await initDashboard();
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        async function fetchTransactions() {
+            try {
+                var r = await fetch("/api/transactions", { headers: authHeaders() });
+                state.transactions = await r.json();
+                updateGrowthPercentage();
+            } catch (err) {
+                console.error("Fetch transactions error:", err);
+            }
+        }
+
+        function updateGrowthPercentage() {
+            var badge = document.getElementById("growth-badge");
+            var text = document.getElementById("growth-text");
+
+            if (!state.transactions || state.transactions.length === 0) {
+                text.textContent = "▲ +0.0%";
+                badge.style.background = "#e6f4ea";
+                badge.style.color = "#137333";
+                return;
+            }
+
+            var totalDeposited = state.transactions
+                .filter(t => Number(t.amount) > 0)
+                .reduce((sum, t) => sum + Number(t.amount), 0);
+
+            var currentBal = (state.summary && state.summary.total_balance) ? state.summary.total_balance : 0;
+            if (totalDeposited > 0) {
+                var diff = currentBal - totalDeposited;
+                var pctGrowth = ((currentBal / totalDeposited) * 100).toFixed(1);
+                if (diff >= 0) {
+                    text.textContent = "▲ +" + pctGrowth + "%";
+                    badge.style.background = "#e6f4ea";
+                    badge.style.color = "#137333";
+                } else {
+                    text.textContent = "▼ " + pctGrowth + "%";
+                    badge.style.background = "#fee2e2";
+                    badge.style.color = "#dc2626";
+                }
+            } else {
+                text.textContent = "▲ +0.0%";
+                badge.style.background = "#e6f4ea";
+                badge.style.color = "#137333";
+            }
+        }
+
+        async function fetchGoals() {
+            try {
+                var r = await fetch("/api/goals", { headers: authHeaders() });
+                state.goals = await r.json();
+                renderGoalsList();
+            } catch (err) {
+                console.error("Fetch goals error:", err);
+            }
+        }
+
+        var editingGoalId = null;
+
+        function renderGoalsList() {
+            var container = document.getElementById("goals-list-container");
+            container.innerHTML = "";
+
+            if (!state.goals || state.goals.length === 0) {
+                container.innerHTML = '<div style="font-size:9px; color:#888880;">No goals set. Click + Goal to add.</div>';
+                return;
+            }
+
+            var totalEnvBalance = state.envelopes.reduce((sum, e) => sum + Number(e.balance || 0), 0);
+
+            state.goals.forEach(function(g) {
+                var target = Number(g.target_amount || 1000000);
+                var pct = Math.min(100, Math.round((totalEnvBalance / target) * 100));
+
+                var html = `
+                    <div class="goal-mini-item">
+                        <div class="goal-mini-header">
+                            <span>${g.title}</span>
+                            <div style="display:flex; align-items:center; gap:4px;">
+                                <span class="goal-mini-amount">${target.toLocaleString()} RWF</span>
+                                <button class="btn-icon-edit" title="Edit Goal" onclick="openEditGoalModal(${g.id})">&#9998;</button>
+                                <button class="btn-icon-danger" title="Delete Goal" onclick="deleteGoal(${g.id})">&times;</button>
+                            </div>
+                        </div>
+                        <div class="goal-mini-track">
+                            <div class="goal-mini-fill" style="width: ${pct}%;"></div>
+                        </div>
+                        <div style="font-size:8px; color:#666660; text-align:right;">${pct}% target achieved</div>
+                    </div>
+                `;
+                container.insertAdjacentHTML("beforeend", html);
+            });
+        }
+
+        function openEditGoalModal(id) {
+            var goal = state.goals.find(g => g.id === id);
+            if (!goal) return;
+            editingGoalId = id;
+            document.getElementById("modal-goal-heading").textContent = "Edit Big Financial Goal";
+            document.getElementById("goal-title-input").value = goal.title;
+            document.getElementById("goal-amount-input").value = goal.target_amount;
+            document.getElementById("goal-date-input").value = goal.target_date || "";
+            openModal("m-add-goal");
+        }
+
+        function openCreateGoalModal() {
+            editingGoalId = null;
+            document.getElementById("modal-goal-heading").textContent = "Create Big Financial Goal";
+            document.getElementById("goal-title-input").value = "";
+            document.getElementById("goal-amount-input").value = "";
+            document.getElementById("goal-date-input").value = "";
+            openModal("m-add-goal");
+        }
+
+        async function deleteGoal(id) {
+            if (!confirm("Are you sure you want to delete this financial goal?")) return;
+            try {
+                var r = await fetch("/api/goals/" + id, {
+                    method: "DELETE",
+                    headers: authHeaders()
+                });
+                if (!r.ok) throw new Error("Failed to delete goal.");
+                await initDashboard();
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        function populateRuleEnvelopeSelect() {
+            var sel = document.getElementById("rule-envelope");
+            sel.innerHTML = "";
+            state.envelopes.forEach(function(env) {
+                var opt = document.createElement("option");
+                opt.value = env.id;
+                opt.textContent = env.name;
+                sel.appendChild(opt);
+            });
+        }
+
+        /* Time Horizon Graph Filters */
+        function setTimeFilter(filter) {
+            activeTimeFilter = filter;
+            document.querySelectorAll(".filter-btn-lean").forEach(b => b.classList.remove("active"));
+            var btn = document.getElementById("tf-" + filter);
+            if (btn) btn.classList.add("active");
+            renderSavingsGoalChart();
+        }
+
+        function openRangePicker() {
+            openModal("m-range-picker");
+        }
+
+        function applyCustomDateRange(e) {
+            e.preventDefault();
+            closeModal("m-range-picker");
+            setTimeFilter("Range");
+        }
+
+        function getChartLabelsAndData() {
+            var currentBal = state.summary.total_balance || 0;
+
+            if (activeTimeFilter === "Weekly") {
+                return {
+                    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+                    savings: [
+                        Math.round(currentBal * 0.4),
+                        Math.round(currentBal * 0.5),
+                        Math.round(currentBal * 0.65),
+                        Math.round(currentBal * 0.75),
+                        Math.round(currentBal * 0.85),
+                        Math.round(currentBal * 0.95),
+                        currentBal
+                    ]
+                };
+            } else if (activeTimeFilter === "Monthly") {
+                return {
+                    labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
+                    savings: [
+                        Math.round(currentBal * 0.25),
+                        Math.round(currentBal * 0.5),
+                        Math.round(currentBal * 0.75),
+                        currentBal
+                    ]
+                };
+            } else if (activeTimeFilter === "Range") {
+                return {
+                    labels: ["Start", "Q1", "Mid", "Q3", "End"],
+                    savings: [
+                        Math.round(currentBal * 0.2),
+                        Math.round(currentBal * 0.45),
+                        Math.round(currentBal * 0.7),
+                        Math.round(currentBal * 0.85),
+                        currentBal
+                    ]
+                };
+            } else {
+                // Yearly default
+                return {
+                    labels: ["Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+                    savings: [
+                        Math.round(currentBal * 0.05),
+                        Math.round(currentBal * 0.1),
+                        Math.round(currentBal * 0.18),
+                        Math.round(currentBal * 0.28),
+                        Math.round(currentBal * 0.4),
+                        Math.round(currentBal * 0.52),
+                        Math.round(currentBal * 0.65),
+                        Math.round(currentBal * 0.75),
+                        Math.round(currentBal * 0.85),
+                        Math.round(currentBal * 0.9),
+                        Math.round(currentBal * 0.95),
+                        currentBal
+                    ]
+                };
+            }
+        }
+
+        function renderSavingsGoalChart() {
+            var ctx = document.getElementById("savingsGoalChart").getContext("2d");
+            if (chartInstance) chartInstance.destroy();
+
+            var configData = getChartLabelsAndData();
+            var labels = configData.labels;
+            var savingsData = configData.savings;
+
+            var datasets = [
+                {
+                    label: "Cumulative Savings",
+                    data: savingsData,
+                    borderColor: "#000000",
+                    borderWidth: 2.5,
+                    tension: 0,
+                    backgroundColor: "rgba(0, 0, 0, 0.05)",
+                    fill: true,
+                    pointRadius: 3,
+                    pointBackgroundColor: "#000000",
+                    pointBorderColor: "#ffffff",
+                    pointBorderWidth: 1.5,
+                    pointHoverRadius: 6
+                }
+            ];
+
+            var goalColors = ["#555550", "#888880", "#aaaaaa", "#666660", "#999990"];
+            var goalDashes = [[8, 4], [4, 4], [12, 4], [6, 3], [2, 2]];
+
+            state.envelopes.forEach(function(env, idx) {
+                if (env.goal && Number(env.goal) > 0) {
+                    var goalVal = Number(env.goal);
+                    datasets.push({
+                        label: env.name + " Target",
+                        data: labels.map(() => goalVal),
+                        borderColor: goalColors[idx % goalColors.length],
+                        borderWidth: 1.5,
+                        borderDash: goalDashes[idx % goalDashes.length],
+                        tension: 0,
+                        fill: false,
+                        pointRadius: 0
+                    });
+                }
+            });
+
+            state.goals.forEach(function(g) {
+                if (g.target_amount && Number(g.target_amount) > 0) {
+                    datasets.push({
+                        label: g.title,
+                        data: labels.map(() => Number(g.target_amount)),
+                        borderColor: "#000000",
+                        borderWidth: 1.5,
+                        borderDash: [10, 5],
+                        tension: 0,
+                        fill: false,
+                        pointRadius: 0
+                    });
+                }
+            });
+
+            chartInstance = new Chart(ctx, {
+                type: "line",
+                data: { labels: labels, datasets: datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    onHover: function(event, activeElements) {
+                        if (activeElements && activeElements.length > 0) {
+                            var el = activeElements[0];
+                            var val = chartInstance.data.datasets[el.datasetIndex].data[el.index];
+                            if (val !== undefined) {
+                                document.getElementById("balance-rwf").textContent = Number(val).toLocaleString() + " RWF";
+                            }
+                        } else {
+                            var rwf = (state.summary && state.summary.total_balance) ? state.summary.total_balance : 0;
+                            document.getElementById("balance-rwf").textContent = rwf.toLocaleString() + " RWF";
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: "top",
+                            align: "end",
+                            labels: { boxWidth: 12, boxHeight: 2, padding: 8, color: "#666660", font: { size: 9, weight: "600" } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(c) { return " " + c.dataset.label + ": " + Number(c.parsed.y).toLocaleString() + " RWF"; }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: "#666660", font: { size: 10 } } },
+                        y: { grid: { color: "#e8e8e4" }, ticks: { color: "#666660", font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+
+        function highlightEnvelopeOnChart(name) {
+            if (!chartInstance) return;
+            chartInstance.data.datasets.forEach(function(ds) {
+                if (ds.label.includes(name)) {
+                    ds.borderWidth = 3.5;
+                } else if (ds.label !== "Cumulative Savings") {
+                    ds.borderWidth = 1;
+                }
+            });
+            chartInstance.update();
+        }
+
+        /* Calendar Navigation */
+        var currentCalDate = new Date();
+        var selectedCalDate = null;
+
+        function renderCalendar() {
+            var year = currentCalDate.getFullYear();
+            var month = currentCalDate.getMonth();
+
+            var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            document.getElementById("cal-month-name").textContent = monthNames[month] + ", " + year;
+
+            var firstDay = new Date(year, month, 1).getDay();
+            var startDay = (firstDay === 0) ? 6 : firstDay - 1;
+            var daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            var container = document.getElementById("calendar-days-container");
+            container.innerHTML = "";
+
+            for (var i = 0; i < startDay; i++) {
+                container.insertAdjacentHTML("beforeend", '<div class="cal-day-cell other-month"></div>');
+            }
+
+            var today = new Date();
+            for (var day = 1; day <= daysInMonth; day++) {
+                var isActive = (selectedCalDate === day || (day === today.getDate() && month === today.getMonth() && year === today.getFullYear())) ? "active" : "";
+                container.insertAdjacentHTML("beforeend", `<div class="cal-day-cell ${isActive}" onclick="selectCalendarDate(${day})">${day}</div>`);
+            }
+        }
+
+        function selectCalendarDate(day) {
+            selectedCalDate = day;
+            renderCalendar();
+            switchTab("transactions");
+        }
+
+        function prevMonth() {
+            currentCalDate.setMonth(currentCalDate.getMonth() - 1);
+            renderCalendar();
+        }
+
+        function nextMonth() {
+            currentCalDate.setMonth(currentCalDate.getMonth() + 1);
+            renderCalendar();
+        }
+
+        /* Transactions Log & Exporting */
+        function renderFullTransactionsTable() {
+            var query = (document.getElementById("tx-log-search").value || "").toLowerCase();
+            var category = document.getElementById("tx-label-filter").value;
+
+            var filtered = state.transactions.filter(function(tx) {
+                var matchesQuery = (tx.note || "").toLowerCase().includes(query) ||
+                                   (tx.label || "").toLowerCase().includes(query) ||
+                                   (tx.amount || 0).toString().includes(query);
+                var matchesCat = (category === "all" || tx.label === category);
+                return matchesQuery && matchesCat;
+            });
+
+            document.getElementById("tx-count-summary").textContent = "Showing " + filtered.length + " entries";
+
+            var tbody = document.getElementById("tx-table-body");
+            tbody.innerHTML = "";
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#888880; padding:20px;">No transactions recorded.</td></tr>';
+                return;
+            }
+
+            filtered.forEach(function(tx) {
+                var d = new Date(tx.created_at || Date.now());
+                var dateStr = d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+                var usdStr = state.rateUsd ? "$" + (Math.abs(Number(tx.amount)) * state.rateUsd).toFixed(2) : "N/A";
+                var isWithdraw = Number(tx.amount) < 0 || tx.label === "withdrawal";
+                var badgeClass = isWithdraw ? "other" : (tx.label === "salary" ? "salary" : (tx.label === "gig" ? "gig" : "other"));
+                var amtColor = isWithdraw ? "#ef4444" : "#0f8a3f";
+                var amtPrefix = isWithdraw ? "" : "+";
+
+                var html = `
+                    <tr>
+                        <td style="font-weight:700;">#${tx.id}</td>
+                        <td>${dateStr}</td>
+                        <td style="font-weight:600;">${tx.note || tx.label.toUpperCase()}</td>
+                        <td><span class="tx-item-badge ${badgeClass}">${tx.label}</span></td>
+                        <td style="font-weight:800; color:${amtColor};">${amtPrefix}${Number(tx.amount).toLocaleString()} RWF</td>
+                        <td style="color:#666660;">${usdStr}</td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML("beforeend", html);
+            });
+        }
+
+        function exportCSV() {
+            if (!state.transactions.length) return alert("No transactions to export.");
+            var csv = "ID,Date,Label,Note,Amount_RWF\n";
+            state.transactions.forEach(t => {
+                csv += `${t.id},"${t.created_at}","${t.label}","${t.note || ''}",${t.amount}\n`;
+            });
+            var blob = new Blob([csv], { type: "text/csv" });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement("a");
+            a.href = url;
+            a.download = "cashos_transactions.csv";
+            a.click();
+        }
+
+        function exportJSON() {
+            if (!state.transactions.length) return alert("No transactions to export.");
+            var blob = new Blob([JSON.stringify(state.transactions, null, 2)], { type: "application/json" });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement("a");
+            a.href = url;
+            a.download = "cashos_transactions.json";
+            a.click();
+        }
+
+        /* Action Handlers */
+        async function handleDeposit(e) {
+            e.preventDefault();
+            var amt = Number(document.getElementById("dep-amount").value);
+            var lbl = document.getElementById("dep-label").value;
+            var nte = document.getElementById("dep-note").value;
+
+            try {
+                var r = await fetch("/api/deposit", {
+                    method: "POST",
+                    headers: authHeaders(),
+                    body: JSON.stringify({ amount: amt, label: lbl, note: nte })
+                });
+                if (!r.ok) throw new Error("Deposit failed.");
+                closeModal("m-deposit");
+                await initDashboard();
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        async function handleWithdraw(e) {
+            e.preventDefault();
+            var envId = Number(document.getElementById("withdraw-envelope-select").value);
+            var amt = Number(document.getElementById("withdraw-amount").value);
+            var nte = document.getElementById("withdraw-note").value;
+
+            try {
+                var r = await fetch("/api/withdraw", {
+                    method: "POST",
+                    headers: authHeaders(),
+                    body: JSON.stringify({ envelope_id: envId, amount: amt, note: nte })
+                });
+                var res = await r.json();
+                if (!r.ok) throw new Error(res.detail || "Withdrawal failed.");
+                closeModal("m-withdraw");
+                await initDashboard();
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        async function handleCreateEnvelope(e) {
+            e.preventDefault();
+            var name = document.getElementById("env-name").value;
+            var goal = document.getElementById("env-goal").value;
+            var date = document.getElementById("env-date").value;
+            var color = document.getElementById("env-color").value;
+
+            try {
+                var r = await fetch("/api/envelopes", {
+                    method: "POST",
+                    headers: authHeaders(),
+                    body: JSON.stringify({
+                        name: name,
+                        goal: goal ? Number(goal) : null,
+                        goal_date: date || null,
+                        color: color
+                    })
+                });
+                if (!r.ok) throw new Error("Failed to create envelope.");
+                closeModal("m-envelope");
+                await initDashboard();
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        async function handleCreateRule(e) {
+            e.preventDefault();
+            var label = document.getElementById("rule-label").value;
+            var envId = Number(document.getElementById("rule-envelope").value);
+            var type = document.getElementById("rule-type").value;
+            var val = Number(document.getElementById("rule-value").value);
+
+            try {
+                var r = await fetch("/api/rules", {
+                    method: "POST",
+                    headers: authHeaders(),
+                    body: JSON.stringify({
+                        label: label,
+                        envelope_id: envId,
+                        type: type,
+                        value: val
+                    })
+                });
+                if (!r.ok) throw new Error("Failed to save rule.");
+                closeModal("m-rule");
+                await initDashboard();
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        async function handleCreateGoal(e) {
+            e.preventDefault();
+            var title = document.getElementById("goal-title-input").value;
+            var amount = Number(document.getElementById("goal-amount-input").value);
+            var date = document.getElementById("goal-date-input").value;
+
+            try {
+                var url = editingGoalId ? ("/api/goals/" + editingGoalId) : "/api/goals";
+                var method = editingGoalId ? "PUT" : "POST";
+                var r = await fetch(url, {
+                    method: method,
+                    headers: authHeaders(),
+                    body: JSON.stringify({ title: title, target_amount: amount, target_date: date || null })
+                });
+                if (!r.ok) throw new Error("Failed to save goal.");
+                closeModal("m-add-goal");
+                editingGoalId = null;
+                await initDashboard();
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        function filterDashboard() {
+            var q = (document.getElementById("dash-search").value || "").toLowerCase();
+            document.querySelectorAll(".env-row-item").forEach(el => {
+                var txt = el.textContent.toLowerCase();
+                el.style.display = txt.includes(q) ? "flex" : "none";
+            });
+        }
+
+        // Initialize dashboard on load
+        initDashboard();
+    </script>
+
+</body>
+</html>
