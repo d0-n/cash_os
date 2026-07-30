@@ -14,7 +14,7 @@ It provides immense practical value over standard budgeting apps by offering **A
 
 1. **Clone the repository:**
    ```bash
-   git clone <your-repo-url>
+   git clone https://github.com/d0-n/cash_os.git
    cd Cash_Os
    ```
 
