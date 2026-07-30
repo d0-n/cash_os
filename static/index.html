@@ -133,7 +133,7 @@
                             <div class="card calendar">
                                 <div class="calendar__collapsed-strip" onclick="ui.toggleCalendar()">
                                     <svg class="calendar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                                    <div class="calendar__vertical-text">Calendar & Goals</div>
+                                    <div class="calendar__vertical-text">Calendar</div>
                                 </div>
                                 <div class="calendar__expanded-content">
                                     <div>
@@ -398,23 +398,7 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="m-add-goal">
-        <div class="modal">
-            <button class="btn btn--close" onclick="ui.hideModals()">&times;</button>
-            <div class="modal__header"><h3>Add Goal</h3></div>
-            <form onsubmit="app.handleCreateGoal(event)">
-                <div class="modal__field">
-                    <label>Goal Title</label>
-                    <input type="text" id="goal-title-input" required>
-                </div>
-                <div class="modal__field">
-                    <label>Target Amount</label>
-                    <input type="number" id="goal-amount-input" required min="1">
-                </div>
-                <button type="submit" class="btn btn--primary" style="width:100%">Save Goal</button>
-            </form>
-        </div>
-    </div>
+
     <div class="modal-overlay" id="m-deposit">
         <div class="modal">
             <button class="btn btn--close" onclick="ui.hideModals()">&times;</button>
