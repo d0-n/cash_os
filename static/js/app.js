@@ -343,21 +343,21 @@ const app = {
         const ctx = document.getElementById("mainChart");
         if (!ctx) return;
         
-        let sorted = [...this.state.transactions].sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+        let sorted = [...this.state.transactions].sort((a,b) => new Date(a.created_at.replace(" ", "T")) - new Date(b.created_at.replace(" ", "T")));
         
         const now = new Date();
         if (this.state.timeFilter === 'Weekly') {
-            sorted = sorted.filter(t => (now - new Date(t.created_at)) <= 7*24*60*60*1000);
+            sorted = sorted.filter(t => (now - new Date(t.created_at.replace(" ", "T"))) <= 7*24*60*60*1000);
         } else if (this.state.timeFilter === 'Monthly') {
-            sorted = sorted.filter(t => (now - new Date(t.created_at)) <= 30*24*60*60*1000);
+            sorted = sorted.filter(t => (now - new Date(t.created_at.replace(" ", "T"))) <= 30*24*60*60*1000);
         } else if (this.state.timeFilter === 'Yearly') {
-            sorted = sorted.filter(t => new Date(t.created_at).getFullYear() === now.getFullYear());
+            sorted = sorted.filter(t => new Date(t.created_at.replace(" ", "T")).getFullYear() === now.getFullYear());
         } else if (this.state.timeFilter === 'Range' && this.state.dateRange) {
             const start = new Date(this.state.dateRange.start);
             const end = new Date(this.state.dateRange.end);
             end.setHours(23, 59, 59, 999);
             sorted = sorted.filter(t => {
-                const d = new Date(t.created_at);
+                const d = new Date(t.created_at.replace(" ", "T"));
                 return d >= start && d <= end;
             });
         }
@@ -375,7 +375,7 @@ const app = {
         
         sorted.forEach(t => {
             runTotal += Number(t.amount);
-            labels.push(new Date(t.created_at).toLocaleDateString());
+            labels.push(new Date(t.created_at.replace(" ", "T")).toLocaleDateString());
             dataTotal.push(runTotal);
             
             if (t.breakdown && t.breakdown.length > 0) {
