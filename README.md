@@ -28,8 +28,8 @@ It provides immense practical value over standard budgeting apps by offering **A
 3. **Configure Environment Variables:**
    Create a `.env` file in the root directory:
    ```env
-   EXCHANGE_RATE_API_KEY=your_api_key_here
-   JWT_SECRET=your_jwt_secret_here
+   EXCHANGE_RATE_API_KEY=<see-canvas-submission-comments>
+   JWT_SECRET=<see-canvas-submission-comments>
    ```
 
 4. **Run the Application:**
@@ -79,13 +79,12 @@ This application is deployed across a Load Balancer (Lb01) and two standard web 
      }
      ```
    - The domain registrar DNS records are pointed as follows:
-     - `A Record` for `www` -> `3.95.188.37`
      - `A Record` for `lb-01` -> `3.95.188.37`
      - `A Record` for `web-01` -> `3.84.150.52`
      - `A Record` for `web-02` -> `44.204.148.199`
 
-With this setup, all traffic hitting `www.d0n.tech` flows seamlessly through the Load Balancer and is distributed efficiently between Web01 and Web02.
+With this setup, all traffic hitting `cashos.d0n.tech` flows seamlessly through the Load Balancer and is distributed efficiently between Web01 and Web02.
 
 ## Demo Video
-- [Demo Video Link] - *(Insert link to YouTube/Vimeo here)*
-- [Deployed Website] - `http://www.d0n.tech`
+- [Demo Video Link] - 
+- [Deployed Website] - `http://cashos.d0n.tech`
