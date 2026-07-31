@@ -63,6 +63,7 @@ This application is deployed across a Load Balancer (Lb01) and two standard web 
    - The Nginx configuration (`/etc/nginx/nginx.conf`) is set up with an `upstream` block pointing to the two application servers:
      ```nginx
      upstream cashos_backend {
+         ip_hash;
          server 3.84.150.52:8000;
          server 44.204.148.199:8000;
      }
@@ -83,7 +84,17 @@ This application is deployed across a Load Balancer (Lb01) and two standard web 
      - `A Record` for `web-01` -> `3.84.150.52`
      - `A Record` for `web-02` -> `44.204.148.199`
 
-With this setup, all traffic hitting `cashos.d0n.tech` flows seamlessly through the Load Balancer and is distributed efficiently between Web01 and Web02.
+## Challenges & Architectural Decisions
+
+### Distributed State & The "Ghost Money" Bug
+During deployment, I encountered a critical data consistency issue caused by the standard Round Robin load balancing algorithm. Because the application utilizes a local SQLite database for speed and simplicity, each web server (Web01 and Web02) maintained its own isolated "twin" database. 
+
+When a user signed up, their session and user ID (e.g., ID #5) were saved on Web01. However, upon navigating to the dashboard, the standard Round Robin algorithm routed their subsequent request to Web02. Web02's database had no record of that user, resulting in sudden authentication failures or, worse, pulling data for a completely different user who happened to have ID #5 on Web02 (a bug I dubbed "Ghost Money").
+
+**The Solution:**
+To resolve this distributed state issue without migrating to a centralized PostgreSQL database, I reconfigured the Load Balancer to use the **`ip_hash`** algorithm instead of standard Round Robin. 
+
+`ip_hash` guarantees that once a user's IP connects to Web01, the load balancer securely locks their session to that specific server for all future requests. This perfectly resolved the split-brain database issue while maintaining the redundancy of a dual-server architecture. *(Note: `ip_hash` was temporarily disabled during the demo video strictly to showcase the successful traffic splitting between servers, before being immediately re-enabled for production stability).*
 
 ## Demo Video
 - [Demo Video Link] - 
