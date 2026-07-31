@@ -28,8 +28,8 @@ It provides immense practical value over standard budgeting apps by offering **A
 3. **Configure Environment Variables:**
    Create a `.env` file in the root directory:
    ```env
-   EXCHANGE_RATE_API_KEY=<see-canvas-submission-comments>
-   JWT_SECRET=<see-canvas-submission-comments>
+   EXCHANGE_RATE_API_KEY= your API key 
+   JWT_SECRET= your JWT_SECRET
    ```
 
 4. **Run the Application:**
@@ -97,5 +97,5 @@ To resolve this distributed state issue without migrating to a centralized Postg
 `ip_hash` guarantees that once a user's IP connects to Web01, the load balancer securely locks their session to that specific server for all future requests. This perfectly resolved the split-brain database issue while maintaining the redundancy of a dual-server architecture. *(Note: `ip_hash` was temporarily disabled during the demo video strictly to showcase the successful traffic splitting between servers, before being immediately re-enabled for production stability).*
 
 ## Demo Video
-- [Demo Video Link] - 
+- [Demo Video Link] - https://www.youtube.com/watch?v=KvXVmY3SaSs
 - [Deployed Website] - `http://cashos.d0n.tech`
