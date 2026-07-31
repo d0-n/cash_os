@@ -98,4 +98,4 @@ To resolve this distributed state issue without migrating to a centralized Postg
 
 ## Demo Video
 - [Demo Video Link] - https://www.youtube.com/watch?v=KvXVmY3SaSs
-- [Deployed Website] - `http://cashos.d0n.tech`
+- [Deployed Website] - http://cashos.d0n.tech
